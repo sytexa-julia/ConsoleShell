@@ -6,7 +6,7 @@ using System;
 
 namespace ConsoleShell.Readline
 {
-    internal class TabCompleteEventArgs : EventArgs
+    public class TabCompleteEventArgs : EventArgs
     {
         #region Fields
 
