@@ -11,7 +11,7 @@
     <AssemblyName>ConsoleShell</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AssemblyVersion>1.2.1.20</AssemblyVersion>
+    <AssemblyVersion>1.2.1.23</AssemblyVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -43,6 +43,7 @@
     <Compile Include="CommandExecuteEventArgs.cs" />
     <Compile Include="CommandNotFoundEventArgs.cs" />
     <Compile Include="CompleteShellCommandDelegate.cs" />
+    <Compile Include="ICommandPreprocessorStage.cs" />
     <Compile Include="InvokeShellCommandDelegate.cs" />
     <Compile Include="IShellCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

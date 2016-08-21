@@ -16,21 +16,34 @@
 // 
 //  This file is part of ConsoleShell.
 #endregion
-
-using System;
-
 namespace ConsoleShell
 {
-    public class CommandExecuteEventArgs : EventArgs
+    /// <summary>
+    /// Defines an interface for a preprocessor stage for command input parsing.
+    /// </summary>
+    public interface ICommandPreprocessorStage
     {
-        public string Command { get; private set; }
+        /// <summary>
+        /// Gets the priority of the stage. Lower priority stages are executed first.
+        /// Stages with the same priority are executed in the order registered to the Shell.
+        /// </summary>
+        int Priority { get; }
 
-        public object Result { get; private set; }
+        /// <summary>
+        /// Preprocesses a command and returns the (optionally) transformed command tokens.
+        /// </summary>
+        /// <param name="shell">The <c>Shell</c> instance</param>
+        /// <param name="tokens">The tokens that make up the command.</param>
+        /// <returns>The command tokens, optionally transformed during preprocessing</returns>
+        string[] PreprocessCommand(Shell shell, string[] tokens);
 
-        public CommandExecuteEventArgs(string command, object result)
-        {
-            Command = command;
-            Result  = result;
-        }
+        /// <summary>
+        /// Removes preprocessor syntax elements from the provided command text and returns
+        /// the modified command text.
+        /// </summary>
+        /// <param name="input">The command input (so far), potentially containing preprocessor syntax elements</param>
+        /// <returns>The input command text, with any syntax specified to the implemented 
+        /// preprocessor stage removed</returns>
+        string RemovePreprocessorSyntax(string input);
     }
 }

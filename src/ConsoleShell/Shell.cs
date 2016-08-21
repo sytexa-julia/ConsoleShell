@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,15 @@ namespace ConsoleShell
         private readonly object _lock = new object();        
 
         #endregion
+
+        private ICollection<ICommandPreprocessorStage> PreprocessorStages = new List<ICommandPreprocessorStage>();
+
+        /// <summary>
+        /// Stores the result of an executed command. 
+        /// Should be set in a <c>IShellCommand</c> <c>Invoke</c> method.
+        /// The value is set to <c>null</c> at the start of the next <c>ExecuteCommand</c> call.
+        /// </summary>
+        public object CommandResult { get; set; }
 
         public event EventHandler<CommandNotFoundEventArgs> ShellCommandNotFound;
         public event EventHandler<PrintAlternativesEventArgs> PrintAlternatives;
@@ -119,9 +129,9 @@ namespace ConsoleShell
 
                 try
                 {
-                    BeforeCommandExecute?.Invoke(this, new CommandExecuteEventArgs(input));
+                    BeforeCommandExecute?.Invoke(this, new CommandExecuteEventArgs(input, null));
                     ExecuteCommand(input);
-                    AfterCommandExecute?.Invoke(this, new CommandExecuteEventArgs(input));
+                    AfterCommandExecute?.Invoke(this, new CommandExecuteEventArgs(input, CommandResult));
                 }
                 catch (ShellCommandNotFoundException)
                 {
@@ -163,7 +173,11 @@ namespace ConsoleShell
         private void ReadlineOnTabComplete(object sender, TabCompleteEventArgs e)
         {
             var buff = ((Readline.Readline)sender).LineBuffer;
-            
+
+            // Remove preprocessor syntax that the command processor doesn't know about
+            foreach (var pp in PreprocessorStages.OrderBy(s => s.Priority))
+                buff = pp.RemovePreprocessorSyntax(buff);
+
             lock (_lock)
             {
                 var complete = _container.CompleteInput(this, buff).ToArray();
@@ -223,12 +237,53 @@ namespace ConsoleShell
 
         #region Execute
 
+        private string CollectionToString<T>(IEnumerable<T> collection, string separater = " ")
+        {
+            var builder = new StringBuilder();
+            foreach (var i in collection)
+            {
+                builder.Append(i);
+                if (!i.Equals(collection.LastOrDefault()))
+                    builder.Append(separater);
+            }
+
+            return builder.ToString();
+        }
+
         public virtual void ExecuteCommand(string[] tokens)
         {
+            // Clear stored command result, if any.
+            CommandResult = null;
+
+            var modTokens = (string[])tokens.Clone();
+
+            // Execute any preprocessor stages
+            if (PreprocessorStages?.Any() ?? false)
+            {
+                Debug.WriteLine($"Begin preprocessing of command with tokens: {CollectionToString(modTokens)}");
+
+                foreach (var ps in PreprocessorStages.OrderBy(s => s.Priority))
+                {
+                    Debug.WriteLine($"Begin preprocessing stage {ps.GetType().Name} with Priority {ps.Priority}.");
+                    Debug.WriteLine($"Tokens before stage: {CollectionToString(modTokens)}");
+
+                    modTokens = ps.PreprocessCommand(this, modTokens);
+
+                    Debug.WriteLine($"Tokens after stage: {CollectionToString(modTokens)}");
+                }
+                
+                Debug.WriteLine($"Final tokens after all preprocessing stages: {CollectionToString(modTokens)}");
+            }
+            else
+            {
+                Debug.WriteLine($"No preprocessor stages registered. Executing the command with the provided tokens: {CollectionToString(modTokens)}.");
+            }
+
+            // Find and execute the command
             Action command;
             lock (_lock)
             {
-                command = _container.FindCommand(this, tokens);
+                command = _container.FindCommand(this, modTokens);
             }
 
             if (command == null)
@@ -310,6 +365,15 @@ namespace ConsoleShell
                     DefaultCompletionsPrinter(e.Alternatives);
                 }
             }
+        }
+
+        /// <summary>
+        /// Adds a preprocessor stage to the command interpreter.
+        /// </summary>
+        /// <param name="preprocessorStage"></param>
+        public void RegisterPreprocessorStage(ICommandPreprocessorStage preprocessorStage)
+        {
+            PreprocessorStages.Add(preprocessorStage);
         }
     }
 }
