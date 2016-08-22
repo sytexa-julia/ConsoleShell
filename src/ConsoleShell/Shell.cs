@@ -223,7 +223,7 @@ namespace ConsoleShell
                 foreach (var ch in opt)
                 {
                     testPrefix += ch;
-                    if (!options.All(c => c.StartsWith(testPrefix)))
+                    if (!options.All(c => c.StartsWith(testPrefix, StringComparison.OrdinalIgnoreCase)))
                     {
                         break;
                     }
