@@ -4,15 +4,13 @@
     <id>$id$</id>
     <title>ConsoleShellEx</title>
     <version>$version$</version>
-    <authors>Artur Kraev, Sytexa LLC</authors>
-    <owners>Artur Kraev</owners>    
+    <authors>$author$</authors>
+    <owners>$author$</owners>    
     <projectUrl>https://github.com/sytexa-julia/ConsoleShell</projectUrl>    
     <licenseUrl>https://raw.githubusercontent.com/RaveNoX/ConsoleShell/master/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Fork of https://github.com/RaveNoX/ConsoleShell
-
-$description$</description>    
-    <copyright>Copyright © Artur Kraev 2015</copyright>
+    <description>$description$</description>    
+    <copyright>Copyright © Artur Kraev 2017</copyright>
     <tags>consoleshell console-shell console shell command-line interface command parameters commandline interpreter parser</tags>
     <releaseNotes></releaseNotes>
     <dependencies>

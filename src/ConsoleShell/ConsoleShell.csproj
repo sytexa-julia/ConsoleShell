@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ConsoleShell</RootNamespace>
-    <AssemblyName>ConsoleShell</AssemblyName>
+    <AssemblyName>ConsoleShellEx</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AssemblyVersion>1.2.1.24</AssemblyVersion>
