@@ -343,6 +343,7 @@ namespace ConsoleShell
             else
             {
                 Console.WriteLine("Command not found: {0}", input);
+                AfterCommandExecute?.Invoke(this, new CommandExecuteEventArgs(input, null));
             }
         }
 
