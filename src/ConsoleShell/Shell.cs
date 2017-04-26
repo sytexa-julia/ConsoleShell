@@ -102,6 +102,19 @@ namespace ConsoleShell
             CompletionPrinter = DefaultCompletionsPrinter;
         }
 
+        /// <summary>
+        /// Checks if the specified input tokens resolve to a registered shell command.
+        /// </summary>
+        /// <param name="tokens">Input tokens</param>
+        /// <returns><c>true</c> if there is a registered command that can handle the given input, <c>false</c> otherwise</returns>
+        public bool IsValidCommand(string[] tokens)
+        {
+            lock (_lock)
+            {
+                return null != _container.FindCommand(this, tokens);
+            }
+        }
+
         public void RunShell()
         {
             var readline = new Readline.Readline(History)
