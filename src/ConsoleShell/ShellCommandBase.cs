@@ -34,12 +34,12 @@ namespace ConsoleShell
         }
 
         /// <summary>
-        ///     Command text pattern
+        ///     UserInput text pattern
         /// </summary>
         public string Pattern { get; }
 
         /// <summary>
-        ///     Command description
+        ///     UserInput description
         /// </summary>
         public string Description { get; }
 

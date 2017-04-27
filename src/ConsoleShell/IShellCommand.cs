@@ -3,12 +3,12 @@
     public interface IShellCommand
     {
         /// <summary>
-        /// Command text pattern
+        /// UserInput text pattern
         /// </summary>
         string Pattern { get; }
 
         /// <summary>
-        /// Command description
+        /// UserInput description
         /// </summary>
         string Description { get; }
 

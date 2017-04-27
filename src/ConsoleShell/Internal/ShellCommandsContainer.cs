@@ -70,7 +70,7 @@ namespace ConsoleShell.Internal
             return new string[] { };
         }
                 
-        public Action FindCommand(Shell shell, string[] tokens)
+        public Action FindCommandAction(Shell shell, string[] tokens)
         {
             var tokensQueue = new Queue<string>(tokens);
             var result = FindMatchedCommands(tokensQueue);
@@ -86,6 +86,17 @@ namespace ConsoleShell.Internal
                     };
                 }
             }
+
+            return null;
+        }
+
+        public IShellCommand FindCommand(Shell shell, string[] tokens)
+        {
+            var tokensQueue = new Queue<string>(tokens);
+            var result      = FindMatchedCommands(tokensQueue);
+
+            if (result.Commands.Count == 1)
+                return  result.Commands.First().Value as IShellCommand;
 
             return null;
         }

@@ -23,14 +23,17 @@ namespace ConsoleShell
 {
     public class CommandExecuteEventArgs : EventArgs
     {
-        public string Command { get; private set; }
+        public IShellCommand Command { get; private set; }
+
+        public string UserInput { get; private set; }
 
         public object Result { get; private set; }
 
-        public CommandExecuteEventArgs(string command, object result)
+        public CommandExecuteEventArgs(string userInput, object result, IShellCommand cmd = null)
         {
-            Command = command;
-            Result  = result;
+            UserInput = userInput;
+            Result    = result;
+            Command   = cmd;
         }
     }
 }

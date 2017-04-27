@@ -111,7 +111,7 @@ namespace ConsoleShell
         {
             lock (_lock)
             {
-                return null != _container.FindCommand(this, tokens);
+                return null != _container.FindCommandAction(this, tokens);
             }
         }
 
@@ -142,9 +142,17 @@ namespace ConsoleShell
 
                 try
                 {
-                    BeforeCommandExecute?.Invoke(this, new CommandExecuteEventArgs(input, null));
-                    ExecuteCommand(input);
-                    AfterCommandExecute?.Invoke(this, new CommandExecuteEventArgs(input, CommandResult));
+                    var tokens = ShellCommandTokenizer.Tokenize(input).ToArray();
+
+                    IShellCommand command = null;
+                    lock (_lock)
+                    {
+                        command = _container.FindCommand(this, tokens);
+                    }
+
+                    BeforeCommandExecute?.Invoke(this, new CommandExecuteEventArgs(input, null, command));
+                    ExecuteCommand(tokens);
+                    AfterCommandExecute?.Invoke(this, new CommandExecuteEventArgs(input, CommandResult, command));
                 }
                 catch (ShellCommandNotFoundException)
                 {
@@ -296,7 +304,7 @@ namespace ConsoleShell
             Action command;
             lock (_lock)
             {
-                command = _container.FindCommand(this, modTokens);
+                command = _container.FindCommandAction(this, modTokens);
             }
 
             if (command == null)
@@ -355,7 +363,7 @@ namespace ConsoleShell
             }
             else
             {
-                Console.WriteLine("Command not found: {0}", input);
+                Console.WriteLine("UserInput not found: {0}", input);
                 AfterCommandExecute?.Invoke(this, new CommandExecuteEventArgs(input, null));
             }
         }

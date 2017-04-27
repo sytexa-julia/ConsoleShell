@@ -7,7 +7,7 @@ using System;
 namespace ConsoleShell
 {
     /// <summary>
-    /// Command item for <see cref="Shell"/>
+    /// UserInput item for <see cref="Shell"/>
     /// </summary>
     public class ShellCommand : ShellCommandBase
     {
