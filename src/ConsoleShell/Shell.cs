@@ -38,6 +38,12 @@ namespace ConsoleShell
         public bool CtrlDIsEOF { get; set; } = true;
         public bool CtrlZIsEOF { get; set; } = Path.DirectorySeparatorChar == '\\';
 
+        /// <summary>
+        /// If <c>true</c>, the next time an autocompletion callback is performed,
+        /// the returned results will be considered "alternatives" rather than a "completion".
+        /// </summary>
+        public bool ForceCompletionsAsAlternatives = false;
+
         public ShellHistory History { get; private set; }
 
         /// <summary>
@@ -202,7 +208,7 @@ namespace ConsoleShell
             lock (_lock)
             {
                 var complete = _container.CompleteInput(this, buff).ToArray();
-                string[] formattedComplete = null;
+                string[] formattedComplete = {};
 
                 if (CompletionFormatter != null)
                 {
@@ -210,7 +216,12 @@ namespace ConsoleShell
                     CompletionFormatter = DefaultCompletionFormatter;
                 }
 
-                if (complete.Length == 1)
+                if (ForceCompletionsAsAlternatives)
+                {
+                    e.Alternatives                 = formattedComplete;
+                    ForceCompletionsAsAlternatives = false;
+                }
+                else if (complete.Length == 1)
                 {                    
                     e.Output = formattedComplete.First();
                 }
