@@ -47,6 +47,11 @@ namespace ConsoleShell
         public ShellHistory History { get; private set; }
 
         /// <summary>
+        /// Gets the current command line buffer.
+        /// </summary>
+        public string Buffer => _readline.LineBuffer;
+
+        /// <summary>
         /// The default completion formatter. 
         /// </summary>
         public static readonly Func<string[], string[]> DefaultCompletionFormatter = (string[] strings) =>
@@ -78,6 +83,8 @@ namespace ConsoleShell
                 Console.WriteLine(item);
             Console.WriteLine();
         };
+
+        private Readline.Readline _readline;
 
         /// <summary>
         /// Gets or sets a formatter action for Alternatives/tab completion options.
@@ -123,21 +130,21 @@ namespace ConsoleShell
 
         public void RunShell()
         {
-            var readline = new Readline.Readline(History)
+            _readline = new Readline.Readline(History)
             {
-                CtrlCInterrupts = CtrlCInterrupts,
-                CtrlDIsEOF = CtrlDIsEOF,
-                CtrlZIsEOF = CtrlZIsEOF
+                    CtrlCInterrupts = CtrlCInterrupts,
+                    CtrlDIsEOF = CtrlDIsEOF,
+                    CtrlZIsEOF = CtrlZIsEOF
             };
 
-            readline.WritePrompt += ReadlineOnWritePrompt;
-            readline.Interrupt += (sender, args) => ShellInterrupt?.Invoke(this, EventArgs.Empty);
-            readline.TabComplete += ReadlineOnTabComplete;
-            readline.PrintAlternatives += (sender, args) => OnPrintAlternatives(args);
+            _readline.WritePrompt += ReadlineOnWritePrompt;
+            _readline.Interrupt += (sender, args) => ShellInterrupt?.Invoke(this, EventArgs.Empty);
+            _readline.TabComplete += ReadlineOnTabComplete;
+            _readline.PrintAlternatives += (sender, args) => OnPrintAlternatives(args);
 
             while (true)
             {
-                var input = readline.ReadLine();                
+                var input = _readline.ReadLine();                
 
                 if (string.IsNullOrWhiteSpace(input))
                 {

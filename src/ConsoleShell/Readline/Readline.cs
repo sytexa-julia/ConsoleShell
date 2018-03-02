@@ -16,13 +16,15 @@ namespace ConsoleShell.Readline
             _history = history;
         }
 
+        private const int InitialBufferWidth = 256;
+
         #region Fields        
 
         // Internal state.
 
         // Line input buffer.
-        private readonly char[] _buffer = new char[256];
-        private readonly byte[] _widths = new byte[256];
+        private char[] _buffer = new char[InitialBufferWidth];
+        private byte[] _widths = new byte[InitialBufferWidth];
         private readonly string _newLine = "\n";
         private int _posn, _length, _column, _lastColumn;
         private bool _overwrite;
@@ -122,6 +124,9 @@ namespace ConsoleShell.Readline
                 var newWidths = new byte[_buffer.Length*2];
                 Array.Copy(_buffer, 0, newBuffer, 0, _buffer.Length);
                 Array.Copy(_widths, 0, newWidths, 0, _buffer.Length);
+
+                _buffer = newBuffer;
+                _widths = newWidths;
             }
         }
 
