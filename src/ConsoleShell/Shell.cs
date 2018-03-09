@@ -191,14 +191,14 @@ namespace ConsoleShell
 
         public virtual string ReadPassword(Action writePromtAction)
         {
-            var readline = new Readline.Readline(History)
+            var readline = new Readline.Readline(new ShellHistory())
             {
                 CtrlCInterrupts = CtrlCInterrupts,
-                CtrlDIsEOF = CtrlDIsEOF,
-                CtrlZIsEOF = CtrlZIsEOF
+                CtrlDIsEOF      = CtrlDIsEOF,
+                CtrlZIsEOF      = CtrlZIsEOF
             };
 
-            readline.WritePrompt += (sender, args) => WritePrompt?.Invoke(this, EventArgs.Empty);
+            readline.WritePrompt += (sender, args) => writePromtAction?.Invoke();
             readline.Interrupt += (sender, args) => ShellInterrupt?.Invoke(this, EventArgs.Empty);
 
             return readline.ReadPassword();
