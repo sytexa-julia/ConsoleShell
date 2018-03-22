@@ -298,6 +298,9 @@ namespace ConsoleShell.Readline
         // Delete a number of characters under the cursor.
         private void Delete(int num = 1)
         {
+            if (_length <= _posn)
+                return;
+
             Array.Copy(_buffer, _posn + num, _buffer, _posn, _length - _posn - num);
             _length -= num;
             Repaint(false, false);
