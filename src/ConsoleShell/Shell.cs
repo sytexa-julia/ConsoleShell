@@ -318,6 +318,12 @@ namespace ConsoleShell
                 Debug.WriteLine($"No preprocessor stages registered. Executing the command with the provided tokens: {CollectionToString(modTokens)}.");
             }
 
+            if (!modTokens.Any())
+            {
+                Debug.WriteLine("Preprocessor removed all tokens. No command will be executed.");
+                return;
+            }
+
             // Find and execute the command
             Action command;
             lock (_lock)
