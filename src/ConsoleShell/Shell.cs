@@ -14,7 +14,7 @@ namespace ConsoleShell
         #region Fields
 
         private ShellCommandsContainer _container = new ShellCommandsContainer();
-        private readonly object _lock = new object();        
+        private readonly object _lock = new object();
 
         #endregion
 
@@ -33,7 +33,7 @@ namespace ConsoleShell
         public event EventHandler WritePrompt;
         public event EventHandler<CommandExecuteEventArgs> AfterCommandExecute;
         public event EventHandler<CommandExecuteEventArgs> BeforeCommandExecute;
-        
+
         public bool CtrlCInterrupts { get; set; } = Path.DirectorySeparatorChar == '/';
         public bool CtrlDIsEOF { get; set; } = true;
         public bool CtrlZIsEOF { get; set; } = Path.DirectorySeparatorChar == '\\';
@@ -57,7 +57,7 @@ namespace ConsoleShell
         public static readonly Func<string[], string[]> DefaultCompletionFormatter = (string[] strings) =>
         {
             if (strings.Count() == 1)
-                return new string[] {$"{strings[0]} "};
+                return new string[] { $"{strings[0]} " };
 
             return strings;
         };
@@ -132,9 +132,9 @@ namespace ConsoleShell
         {
             _readline = new Readline.Readline(History)
             {
-                    CtrlCInterrupts = CtrlCInterrupts,
-                    CtrlDIsEOF = CtrlDIsEOF,
-                    CtrlZIsEOF = CtrlZIsEOF
+                CtrlCInterrupts = CtrlCInterrupts,
+                CtrlDIsEOF = CtrlDIsEOF,
+                CtrlZIsEOF = CtrlZIsEOF
             };
 
             _readline.WritePrompt += ReadlineOnWritePrompt;
@@ -144,7 +144,7 @@ namespace ConsoleShell
 
             while (true)
             {
-                var input = _readline.ReadLine();                
+                var input = _readline.ReadLine();
 
                 if (string.IsNullOrWhiteSpace(input))
                 {
@@ -153,23 +153,29 @@ namespace ConsoleShell
 
                 input = input.Trim();
 
-                try
-                {
-                    var tokens = ShellCommandTokenizer.Tokenize(input).ToArray();
 
-                    IShellCommand command = null;
-                    lock (_lock)
+                var allTokens = ShellCommandTokenizer.Tokenize(input);
+
+                foreach (var cmdTokens in allTokens)
+                {
+                    try
                     {
-                        command = _container.FindCommand(this, tokens);
-                    }
+                        var tokenArr = cmdTokens.ToArray();
 
-                    BeforeCommandExecute?.Invoke(this, new CommandExecuteEventArgs(input, null, command));
-                    ExecuteCommand(tokens);
-                    AfterCommandExecute?.Invoke(this, new CommandExecuteEventArgs(input, CommandResult, command));
-                }
-                catch (ShellCommandNotFoundException)
-                {
-                    OnShellCommandNotFound(input);
+                        IShellCommand command = null;
+                        lock (_lock)
+                        {
+                            command = _container.FindCommand(this, tokenArr);
+                        }
+
+                        BeforeCommandExecute?.Invoke(this, new CommandExecuteEventArgs(input, null, command));
+                        ExecuteCommand(tokenArr);
+                        AfterCommandExecute?.Invoke(this, new CommandExecuteEventArgs(input, CommandResult, command));
+                    }
+                    catch (ShellCommandNotFoundException)
+                    {
+                        OnShellCommandNotFound(input);
+                    }
                 }
 
                 History.AddUnique(input);
@@ -194,8 +200,8 @@ namespace ConsoleShell
             var readline = new Readline.Readline(new ShellHistory())
             {
                 CtrlCInterrupts = CtrlCInterrupts,
-                CtrlDIsEOF      = CtrlDIsEOF,
-                CtrlZIsEOF      = CtrlZIsEOF
+                CtrlDIsEOF = CtrlDIsEOF,
+                CtrlZIsEOF = CtrlZIsEOF
             };
 
             readline.WritePrompt += (sender, args) => writePromtAction?.Invoke();
@@ -215,7 +221,7 @@ namespace ConsoleShell
             lock (_lock)
             {
                 var complete = _container.CompleteInput(this, buff).ToArray();
-                string[] formattedComplete = {};
+                string[] formattedComplete = { };
 
                 if (CompletionFormatter != null)
                 {
@@ -225,17 +231,17 @@ namespace ConsoleShell
 
                 if (ForceCompletionsAsAlternatives)
                 {
-                    e.Alternatives                 = formattedComplete;
+                    e.Alternatives = formattedComplete;
                     ForceCompletionsAsAlternatives = false;
                 }
                 else if (complete.Length == 1)
-                {                    
+                {
                     e.Output = formattedComplete.First();
                 }
                 else if (complete.Length > 1)
                 {
                     var commonPrefix = FindCommonPrefix(complete);
-                    if (!string.IsNullOrEmpty(commonPrefix) 
+                    if (!string.IsNullOrEmpty(commonPrefix)
                         && !buff.EndsWith(commonPrefix, StringComparison.OrdinalIgnoreCase))
                     {
                         e.Output = commonPrefix; // Auto-fill as much as possible
@@ -310,7 +316,7 @@ namespace ConsoleShell
 
                     Debug.WriteLine($"Tokens after stage: {CollectionToString(modTokens)}");
                 }
-                
+
                 Debug.WriteLine($"Final tokens after all preprocessing stages: {CollectionToString(modTokens)}");
             }
             else
@@ -341,7 +347,10 @@ namespace ConsoleShell
 
         public virtual void ExecuteCommand(string input)
         {
-            ExecuteCommand(ShellCommandTokenizer.Tokenize(input).ToArray());
+            foreach (var cmdTokens in ShellCommandTokenizer.Tokenize(input))
+            {
+                ExecuteCommand(cmdTokens.ToArray());
+            }
         }
 
         #endregion

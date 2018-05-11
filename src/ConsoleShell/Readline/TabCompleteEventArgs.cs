@@ -64,6 +64,15 @@ namespace ConsoleShell.Readline
                 }
                 else
                 {
+                    if (Text.Contains(";"))
+                    {
+                        var after = Text.Substring(Text.LastIndexOf(";", StringComparison.OrdinalIgnoreCase) + 1);
+                        if (!string.IsNullOrEmpty(after))
+                            _insert = value.Substring(after.Length);
+
+                        return;
+                    }
+
                     if (value.Length < Text.Length)
                     {
                         return;

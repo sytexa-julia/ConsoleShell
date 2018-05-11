@@ -33,7 +33,8 @@ namespace ConsoleShell.Internal
 
         public IEnumerable<string> CompleteInput(Shell shell, string input)
         {
-            var tokens = new Queue<string>(ShellCommandTokenizer.Tokenize(input));
+            var allTokens = ShellCommandTokenizer.Tokenize(input);
+            var tokens = new Queue<string>(allTokens.Last());
             var endsWithSpace = input.EndsWith(" ");
 
             var result = FindMatchedCommands(tokens, endsWithSpace);
@@ -41,7 +42,7 @@ namespace ConsoleShell.Internal
             if (result.Commands.Count == 1)
             {
                 var command = result.Commands.First();
-
+                
                 if (tokens.Any() || (endsWithSpace && !result.IsTreeLevel))
                 {
                     var commandValue = command.Value as IShellCommand;
@@ -172,7 +173,7 @@ namespace ConsoleShell.Internal
 
         private void TreeAdd(IShellCommand command)
         {
-            var tokens = new Queue<string>(ShellCommandTokenizer.Tokenize(command.Pattern));
+            var tokens = new Queue<string>(ShellCommandTokenizer.Tokenize(command.Pattern).First());
 
             var treeLevel = _commandsTree;
             while (tokens.Any())
